@@ -1,21 +1,31 @@
 'use strict';
 
-const Post = {
+const Job = {
   type: 'object',
   properties: {
-    id: { type: 'number' },
-    body: { type: 'string' },
     title: { type: 'string' },
-    userId: { type: 'number' },
+    link: { type: 'string' },
+    views: { type: 'number' },
+    location: { type: 'string' },
+    createdAt: { type: 'string' },
   },
 };
 
-const testOpts = {
+const jobsOpts = {
   schema: {
     response: {
       200: {
-        type: 'array',
-        items: Post,
+        type: 'object',
+        properties: {
+          count: { type: 'number' },
+          items_per_page: { type: 'number' },
+          current_page: { type: 'number' },
+          last_page: { type: 'number' },
+          rows: {
+            type: 'array',
+            items: Job,
+          },
+        },
       },
     },
   },
@@ -27,6 +37,8 @@ const testOpts = {
  */
 module.exports = async function (fastify, opts, next) {
   const controller = await require('../../../controllers')(fastify);
-  fastify.get('/test', testOpts, controller.testHandler);
+
+  fastify.get('/all-jobs', jobsOpts, controller.allJobsHandler);
+
   next();
 };

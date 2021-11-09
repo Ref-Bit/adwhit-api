@@ -1,19 +1,81 @@
 'use strict';
 
+const cheerio = require('cheerio');
+const { formatDate } = require('../utils');
+const API_URL = 'https://www.adwhit.com';
+
 module.exports = async function (fastify) {
-  const testHandler = async function (req, reply) {
+  const allJobsHandler = async function (req, reply) {
+    const { ps, pn } = req.query;
+    // ps: page_size of value [10, 25, 50] only, other values will default to 10
+    const PAGE_SIZE = [10, 25, 50].find(item => item == ps) ? ps : 10;
+    const PAGE_NUM = pn ? pn : 1;
+
     try {
-      const { data } = await fastify.axios.get(
-        'https://jsonplaceholder.typicode.com/posts'
-      );
-      return data;
+      const data = [];
+      const html = (
+        await fastify.axios.get(
+          `${API_URL}/${encodeURIComponent(
+            'جميع-الوظائف'
+          )}/-1/0/${PAGE_NUM}/${PAGE_SIZE}`
+        )
+      ).data;
+      const $ = cheerio.load(html);
+
+      const TOTAL_JOBS = $('#resultCount', html)
+        .text()
+        .trim()
+        .replace(/,/g, '');
+      const TOTAL_PAGES = Math.ceil(TOTAL_JOBS / PAGE_SIZE);
+
+      $('.listingBlock', html).each(function () {
+        const title = $(this)
+          .children('.listingTitle')
+          .text()
+          .slice(0, -12)
+          .trim();
+        const link = $(this).children('a').attr('href');
+        const views = $(this)
+          .children('.listingFooter')
+          .children('div:nth-child(3)')
+          .text()
+          .trim();
+        const location = $(this)
+          .children('.listingFooter')
+          .children('div:nth-child(9)')
+          .text()
+          .trim();
+        const createdAt = $(this)
+          .children('.listingFooter')
+          .children('div:nth-child(1)')
+          .text()
+          .replace('اليوم', formatDate(new Date()))
+          .replace('الأمس', formatDate(new Date(Date.now() - 864e5)))
+          .trim();
+
+        data.push({
+          title,
+          link: API_URL + link,
+          views,
+          location,
+          createdAt,
+        });
+      });
+
+      return {
+        count: TOTAL_JOBS,
+        items_per_page: PAGE_SIZE,
+        current_page: PAGE_NUM,
+        last_page: TOTAL_PAGES,
+        rows: data,
+      };
     } catch (error) {
       throw new Error(error);
     }
   };
 
   return {
-    testHandler,
+    allJobsHandler,
   };
 };
 
