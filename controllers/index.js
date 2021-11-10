@@ -1,25 +1,30 @@
 'use strict';
 
 const cheerio = require('cheerio');
-const { formatDate } = require('../utils');
-const API_URL = 'https://www.adwhit.com';
+const { formatDate, cities, categories } = require('../utils');
 
 module.exports = async function (fastify) {
   const allJobsHandler = async function (req, reply) {
-    const { ps, pn } = req.query;
+    const { ps, pn, ct, ca } = req.query;
     // ps: page_size of value [10, 25, 50] only, other values will default to 10
     const PAGE_SIZE = [10, 25, 50].find(item => item == ps) ? ps : 10;
+
+    // pn: page_number will default to 1 when its value bigger than total_pages
     const PAGE_NUM = pn ? pn : 1;
+
+    // ct: city_id of value [1, 2, ..., 81] only, other values will default to -1
+    const CITY = cities.find(item => item == ct) ? ct : -1;
+
+    // ca: job_category of [] only, other values will default to 0
+    const CATEGORY = categories.find(category => category.id === +ca)
+      ? categories.find(category => category.id).name
+      : categories[0].name;
+
+    const API_URL = `https://www.adwhit.com/${encodeURIComponent(CATEGORY)}/${CITY}/0/${PAGE_NUM}/${PAGE_SIZE}`;
 
     try {
       const data = [];
-      const html = (
-        await fastify.axios.get(
-          `${API_URL}/${encodeURIComponent(
-            'جميع-الوظائف'
-          )}/-1/0/${PAGE_NUM}/${PAGE_SIZE}`
-        )
-      ).data;
+      const html = (await fastify.axios.get(API_URL)).data;
       const $ = cheerio.load(html);
 
       const TOTAL_JOBS = $('#resultCount', html)
@@ -55,7 +60,7 @@ module.exports = async function (fastify) {
 
         data.push({
           title,
-          link: API_URL + link,
+          link: 'https://www.adwhit.com' + link,
           views,
           location,
           createdAt,
