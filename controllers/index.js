@@ -15,9 +15,9 @@ module.exports = async function (fastify) {
     // ct: city_id of value [1, 2, ..., 81] only, other values will default to -1
     const CITY = cities.find(item => item == ct) ? ct : -1;
 
-    // ca: job_category of [] only, other values will default to 0
+    // ca: job_category of [0, 1, 2,..., 21] only, other values will default to 0
     const CATEGORY = categories.find(category => category.id === +ca)
-      ? categories.find(category => category.id).name
+      ? categories.find(category => category.id === +ca).name
       : categories[0].name;
 
     const API_URL = `https://www.adwhit.com/${encodeURIComponent(CATEGORY)}/${CITY}/0/${PAGE_NUM}/${PAGE_SIZE}`;
@@ -83,56 +83,3 @@ module.exports = async function (fastify) {
     allJobsHandler,
   };
 };
-
-/**
- * Get DYK, ITD, ITN data from HTML
- * @async
- * @param {query: {selector, splitter, matcher?}} req
- * @param {statusCode, Data} res
- * @returns {[{},{},{}...{}]}
- 
-exports.sectionsHandler = async (req, reply) => {
-  try {
-    return { text: 'Hello world' };
-  } catch (error) {
-    throw new Error(error);
-  }
-  /*
-  const path = req.path.slice(1);
-  const locale = req.query.locale.toLowerCase();
-  const matcher = req.query.matcher; // To remove the dots from text
-
-  try {
-    if (!locale) {
-      console.log('Wiki locale is required!');
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .send('Wiki locale is required!');
-    }
-
-    const data = [];
-    const html = (await axios.get(`https://${locale}.wikipedia.org`)).data;
-    const $ = cheerio.load(html);
-
-    $(locales[locale][path].selector, html).each(function () {
-      const content = $(this)
-        .children()
-        .text()
-        .split(locales[locale][path].splitter);
-      content
-        .filter(item => item)
-        .map(item => {
-          data.push({
-            info: matcher ? item.replace(matcher, '').trim() : item,
-          });
-        });
-    });
-    return res.status(StatusCodes.OK).json(data);
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send('<h5>Something went wrong. Please try again later.</h5>');
-  }
-};
-*/

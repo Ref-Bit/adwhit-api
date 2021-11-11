@@ -10,7 +10,7 @@ const rootOpts = {
   },
   handler: async function (req, reply) {
     try {
-      return 'Server is live...🚀';
+      reply.code(303).redirect('/api/v1');
     } catch (error) {
       throw new Error(error);
     }
