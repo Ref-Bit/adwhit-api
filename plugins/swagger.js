@@ -29,6 +29,10 @@ module.exports = fp(async function (fastify, opts) {
           url: 'http://127.0.0.1:5000/api/v1',
           description: 'Development Server',
         },
+        {
+          url: 'https://adwhit-api.herokuapp.com/api/v1',
+          description: 'Production Server',
+        },
       ],
     },
   });
