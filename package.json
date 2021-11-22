@@ -1,5 +1,5 @@
 {
-  "name": "wikia-api",
+  "name": "adwit-api",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -11,8 +11,8 @@
     "start": "fastify start -l info app.js",
     "dev": "fastify start -w -l info -P app.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["API","REST", "fastify", "cheerio", "web-scraping"],
+  "author": "Refaat Bitar",
   "license": "ISC",
   "dependencies": {
     "cheerio": "^1.0.0-rc.10",
@@ -24,6 +24,7 @@
     "fastify-helmet": "^5.3.2",
     "fastify-no-icon": "^4.0.0",
     "fastify-plugin": "^3.0.0",
+    "fastify-rate-limit": "^5.6.2",
     "fastify-sensible": "^3.1.0",
     "fastify-swagger": "^4.12.6"
   },
